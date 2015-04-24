@@ -1,0 +1,4 @@
+#org-eclipse-ui-trim-status, 
+#org-eclipse-ui-trim-vertical1, 
+#org-eclipse-ui-trim-vertical2 
+{ visibility: hidden; }

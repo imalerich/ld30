@@ -1,0 +1,98 @@
+package com.me.mygdxgame;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+
+public class Player 
+{
+	private AnimImage _anim;
+	private Body _body;
+	private PolygonShape _square;
+	private Fixture _fix;
+	
+	private float _direction;
+	private boolean _moving;
+	
+	public void Init(Map World)
+	{
+		_anim = new AnimImage("img/player.png", 1, 4, 2);
+		_anim.NewAnimation(0, 1, 0, 0, 0.15f);
+		_anim.NewAnimation(1, 4, 0, 3, 0.15f);
+		
+		_direction = 1.0f;
+		_moving = false;
+		
+		//create the physics body
+		BodyDef bodyDef = new BodyDef();
+		bodyDef.type = BodyType.DynamicBody;
+		bodyDef.position.set(16+128, 112+32);
+		
+		_body = World._physics.createBody(bodyDef);
+		_body.setFixedRotation(true);
+		_square = new PolygonShape();
+		_square.setAsBox(1, 1);
+		
+		FixtureDef fixd = new FixtureDef();
+		fixd.shape = _square;
+		fixd.density = 0.0f;
+		fixd.friction = 0.0f;
+		
+		_fix = _body.createFixture(fixd);
+	}
+	
+	public void Release()
+	{
+		_square.dispose();
+	}
+	
+	public void Update(Map World)
+	{
+		Vector2 vel = _body.getLinearVelocity();
+		
+		if (Gdx.input.isKeyPressed(Keys.LEFT)) {
+			//_body.applyLinearImpulse(-40.0f, 0, pos.x, pos.y, true);
+			_body.setLinearVelocity( new Vector2(-200, vel.y) );
+			_direction = -1.0f;
+			_moving = true;
+		} else if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
+			//_body.applyLinearImpulse(4000.0f, 0, pos.x, pos.y, true);
+			_body.setLinearVelocity( new Vector2(200, vel.y) );
+			_direction = 1.0f;
+			_moving = true;
+		} else {
+			_body.setLinearVelocity( new Vector2(0, vel.y) );
+			_moving = false;
+		}
+		
+		if (Gdx.input.isKeyPressed(Keys.UP))
+		{
+			//_body.applyLinearImpulse(0.0f, 400.0f, pos.x, pos.y, true);
+			//_body.setLinearVelocity( new Vector2(vel.x, 100) );
+			_body.applyLinearImpulse( new Vector2(0.0f, 500000.0f), _body.getWorldCenter(), true);
+		} 
+	}
+
+	public void Render(SpriteBatch Batch, float Campos)
+	{
+		Vector2 pos = _body.getPosition();
+		pos.x -= (Campos + 16);
+		pos.y -= 16;
+		
+		if (_moving)
+			_anim.Render( Batch, 1, pos, _direction, 1.0f );
+		else _anim.Render( Batch, 0, pos, _direction, 1.0f );
+	}
+	
+	public Vector2 GetPos()
+	{
+		return _body.getPosition();
+	}
+}
